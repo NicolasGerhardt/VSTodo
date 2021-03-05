@@ -20,18 +20,15 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
         webviewView.webview.onDidReceiveMessage(async (data) => {
-            switch (data.type) {
+            if (!data.value) {
+                return;
+            }
+            switch (data.command) {
                 case "onInfo": {
-                    if (!data.value) {
-                        return;
-                    }
                     vscode.window.showInformationMessage(data.value);
                     break;
                 }
                 case "onError": {
-                    if (!data.value) {
-                        return;
-                    }
                     vscode.window.showErrorMessage(data.value);
                     break;
                 }
@@ -81,6 +78,9 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 				<link href="${styleResetUri}" rel="stylesheet">
 				<link href="${styleVSCodeUri}" rel="stylesheet">
                 <link href="${styleMainUri}" rel="stylesheet">
+                <script nonce="${nonce}">
+                    const tsvscode = acquireVsCodeApi();
+                </script>
 			</head>
             <body>
 				<script nonce="${nonce}" src="${scriptUri}"></script>
