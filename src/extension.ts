@@ -5,6 +5,13 @@ import { HelloWorldPanel } from "./HelloWorldPanel";
 import { SidebarProvider } from "./SidebarProvider";
 
 export function activate(context: vscode.ExtensionContext) {
+    const statusbarItem = vscode.window.createStatusBarItem(
+        vscode.StatusBarAlignment.Left
+    );
+    statusbarItem.text = "$(beaker) some text";
+    statusbarItem.command = "vstodo.addTodo";
+    statusbarItem.show();
+
     const sidebarProvider = new SidebarProvider(context.extensionUri);
     context.subscriptions.push(
         vscode.window.registerWebviewViewProvider(

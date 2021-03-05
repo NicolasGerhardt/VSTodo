@@ -1,10 +1,9 @@
 <script lang="ts">
     import { onMount } from "svelte";
 
-    let count: number = Number(localStorage.getItem("count")) ?? 0;
+    let count: number = 0;
     let text = "";
-    let todos: Array<{ text: string; completed: boolean }> =
-        JSON.parse(String(localStorage.getItem("todos"))) ?? [];
+    let todos: Array<{ text: string; completed: boolean; id: number }> = [];
 
     onMount(() => {
         window.addEventListener("message", (event) => {
@@ -13,7 +12,7 @@
             switch (message.command) {
                 case "new-todo":
                     todos = [
-                        { text: message.value, completed: false },
+                        { text: message.value, completed: false, id: count++ },
                         ...todos,
                     ];
                     break;
@@ -34,21 +33,19 @@
 <hr />
 <form
     on:submit|preventDefault={(e) => {
-        todos = [{ text, completed: false }, ...todos];
+        todos = [{ text, completed: false, id: count++ }, ...todos];
         text = "";
-        localStorage.setItem("todos", JSON.stringify(todos));
     }}
 >
     <input bind:value={text} />
 </form>
 
 <ul>
-    {#each todos as { text, completed } (text)}
+    {#each todos as { text, completed, id } (id)}
         <li
             class:complete={completed}
             on:click={() => {
                 completed = !completed;
-                localStorage.setItem("todos", JSON.stringify(todos));
             }}
         >
             {text}
