@@ -1,8 +1,25 @@
 <script lang="ts">
+    import { onMount } from "svelte";
+
     let count: number = Number(localStorage.getItem("count")) ?? 0;
     let text = "";
-    let todos: Array<{ text: string; completed: boolean; id: string }> =
+    let todos: Array<{ text: string; completed: boolean }> =
         JSON.parse(String(localStorage.getItem("todos"))) ?? [];
+
+    onMount(() => {
+        window.addEventListener("message", (event) => {
+            const message = event.data; // The json data that the extension sent
+            console.log({ message });
+            switch (message.command) {
+                case "new-todo":
+                    todos = [
+                        { text: message.value, completed: false },
+                        ...todos,
+                    ];
+                    break;
+            }
+        });
+    });
 </script>
 
 <div>{count}</div>
@@ -17,10 +34,7 @@
 <hr />
 <form
     on:submit|preventDefault={(e) => {
-        todos = [
-            { text, completed: false, id: Date.now().toString() },
-            ...todos,
-        ];
+        todos = [{ text, completed: false }, ...todos];
         text = "";
         localStorage.setItem("todos", JSON.stringify(todos));
     }}
@@ -29,7 +43,7 @@
 </form>
 
 <ul>
-    {#each todos as { text, id, completed } (id)}
+    {#each todos as { text, completed } (text)}
         <li
             class:complete={completed}
             on:click={() => {
@@ -42,6 +56,7 @@
     {/each}
 </ul>
 
+<!-- svelte-ignore missing-declaration -->
 <button
     on:click={() => {
         tsvscode.postMessage({
@@ -51,6 +66,7 @@
     }}>Click Me (info)</button
 >
 
+<!-- svelte-ignore missing-declaration -->
 <button
     on:click={() => {
         tsvscode.postMessage({
